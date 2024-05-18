@@ -20,9 +20,9 @@ class Workout {
     } ${this.date.getDate()}`;
   }
 
-  click() {
-    this.clicks++;
-  }
+  // click() {
+  //   this.clicks++;
+  // }
 }
 
 class Running extends Workout {
@@ -82,7 +82,12 @@ class App {
   #workouts = [];
 
   constructor() {
+    // Get user's position
     this._getPosition();
+
+    // get data from local storage
+    this._getLocalStorage();
+
     // this keyword attach to the element which uses eventListener function so .bind(this) use to attach current object
     form.addEventListener("submit", this._newWorkout.bind(this));
     inputType.addEventListener("change", this._toggleElevationField);
@@ -113,6 +118,10 @@ class App {
 
     // handling clicks on map (click event listening)
     this.#map.on("click", this._showForm.bind(this)); // .bind(this) use to attach current object
+
+    this.#workouts.forEach((workout) => {
+      this._renderWorkoutMarker(workout);
+    });
   }
 
   _showForm(mapE) {
@@ -183,6 +192,9 @@ class App {
 
     // hide form and clear input field
     this._hideForm();
+
+    // set localStorage
+    this._setLocalStorage();
   }
 
   _renderWorkoutMarker(workout) {
@@ -272,7 +284,27 @@ class App {
     });
 
     // using the public interface
-    workout.click();
+    // workout.click();
+  }
+
+  _setLocalStorage() {
+    localStorage.setItem("workouts", JSON.stringify(this.#workouts));
+  }
+
+  _getLocalStorage() {
+    const data = JSON.parse(localStorage.getItem("workouts"));
+
+    if (!data) return;
+    this.#workouts = data;
+
+    this.#workouts.forEach((workout) => {
+      this._renderWorkout(workout);
+    });
+  }
+
+  reset() {
+    localStorage.removeItem("workouts");
+    location.reload();
   }
 }
 // app object created right at the beginning when the page loads so that means the constructor is also executed immediately as the page loads
